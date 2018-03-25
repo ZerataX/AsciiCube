@@ -29,6 +29,12 @@
     ctx = canvas.getContext("2d");
     /**/
     
+    var canvas = document.createElement("canvas");
+    canvas.width = cols;
+    canvas.height = rows;
+    b.appendChild(canvas);
+    ctx = canvas.getContext("2d");
+    
     b.appendChild(pp);
     pp.appendChild(p);
     b.style.margin = 0;
@@ -57,6 +63,7 @@
         ctx.fillStyle = "rgba(255,0,0.8)";
         ctx.fillRect( x, y, 1, 1 );
         /**/
+        
     }
     
     function clear() {
@@ -73,6 +80,12 @@
         ctx.lineTo(x1+cols/2,y1+rows/2);
         ctx.stroke();
         /**/
+        
+        ctx.fillStyle = "rgba(0,0,255,0.3)";
+        ctx.beginPath();
+        ctx.moveTo(x0+cols/2,y0+rows/2);
+        ctx.lineTo(x1+cols/2,y1+rows/2);
+        ctx.stroke();
         
         x0 = x0+cols/2;
         y0 = y0+rows/2;
@@ -118,6 +131,7 @@
         y0 = y0|0;
         y1 = y1|0;
         
+        
         /* DEBUG *
         ctx.fillRect( x0, y0, 2, 2 );
         ctx.fillRect( x1, y1, 2, 2 );
@@ -130,7 +144,6 @@
         var y = y0;
         for(var x = x0; x != x1; x += ((x<x1)?1:-1)) {
             s(1-Math.abs(error),swap?y:x,swap?x:y);
-            //if(error != 0) s(Math.abs(error), x, y + (error > 0 ? 1 : -1));
             error = error + deltaerr;
             if (error >= 0.5) {
                 y = y + (y>0?1:-1);
@@ -139,7 +152,7 @@
         }
     }
     
-    var values = " .'`,^:;~-_+i!lI?/\|()1{}[]rcvunxzjftLCJUYXZO0Qoahkbdpqwm*WMB8&%$#@".split("");
+    var values = ".+".split("");
     function value(v) {
         return values[Math.floor(values.length*v*0.999)];
     }
@@ -147,14 +160,6 @@
     function render() {
         p.innerHTML = a.map(function(x) { return x.map(value).join(""); }).join("\n");
     }
-    
-    /*d.onmousemove = function() {
-        clear();
-        var x = w.event.clientX / w.innerWidth * cols | 0;
-        var y = (w.innerHeight-w.event.clientY) / w.innerHeight * rows | 0;
-        line(cols-1,rows-1,x,y);
-        render();
-    }*/
     
     function Scene() {
         this.objects = [];
@@ -216,109 +221,68 @@
         this.point = point;
         this.width = width;
     }
-    sq._top = [
-        new v3(-0.5,0.5,-0.5),
-        new v3(0.5,0.5,-0.5),
-        new v3(0.5,0.5,0.5),
-        new v3(-0.5,0.5,0.5)
-    ];
-    sq._bottom = [
-        new v3(-0.5,-0.5,-0.5),
-        new v3(0.5,-0.5,-0.5),
-        new v3(0.5,-0.5,0.5),
-        new v3(-0.5,-0.5,0.5)
-    ];
     
     sq.prototype.draw = function() {
-        var top = [
-            new v3(-0.5,0.5,-0.5),
-            new v3(0.5,0.5,-0.5),
-            new v3(0.5,0.5,0.5),
-            new v3(-0.5,0.5,0.5)
+        var middle = [
+            new v3(0.5,0.0,-0.5),
+            new v3(0.5,0.0,0.5),
+            new v3(-0.5,0.0,0.5),
+            new v3(-0.5,0.0,-0.5)
         ];
-        var bottom = [
-            new v3(-0.5,-0.5,-0.5),
-            new v3(0.5,-0.5,-0.5),
-            new v3(0.5,-0.5,0.5),
-            new v3(-0.5,-0.5,0.5)
+        var top = [
+            new v3(0,2,0),
+            new v3(0,-2,0)
         ];
         
         var allPoints = [];
+        middle.forEach(function(p){allPoints.push(p);});
         top.forEach(function(p){allPoints.push(p);});
-        bottom.forEach(function(p){allPoints.push(p);});
         var rotate = new v3(
             (new Date().getTime()/2000)%Math.PI,
             (new Date().getTime()/2000)%Math.PI,
             (new Date().getTime()/2000)%Math.PI
         );
         
-        allPoints.forEach(function(p){
-            
-            var d1x = Math.cos(rotate.y)*p.x + Math.sin(rotate.y)*p.z;
-            var d1y = p.y;
-            var d1z = Math.cos(rotate.y)*p.z - Math.sin(rotate.y)*p.x;
-            
-            var d2x = d1x;
-            var d2y = Math.cos(rotate.x)*d1y - Math.sin(rotate.x)*d1z;
-            var d2z = Math.cos(rotate.x)*d1z + Math.sin(rotate.x)*d1y;
-            
-            var d3x = Math.cos(rotate.z)*d2x + Math.sin(rotate.z)*d2y;
-            var d3y = Math.cos(rotate.z)*d2y - Math.sin(rotate.z)*d2x;
-            var d3z = d2z;
-            
-            p.x = d3x;
-            p.y = d3y;
-            p.z = d3z;
+        middle.forEach(function(p, index){
+            p.x = Math.sin(rotate.x + (0.5*index*Math.PI));
+            p.z = Math.cos(rotate.x + (0.5*index*Math.PI));
             
         });
         
         
-        for(var i = 0; i < top.length; i++) {
+        for(var i = 0; i < middle.length; i++) {
+            var lineMiddle = new l3(
+                middle[i].m(this.width).a(this.point),
+                middle[(i+1)%middle.length].m(this.width).a(this.point)
+            );
             var lineTop = new l3(
-                top[i].m(this.width).a(this.point),
-                top[(i+1)%top.length].m(this.width).a(this.point)
+                middle[i].m(this.width).a(this.point),
+                top[0].m(this.width).a(this.point)
             );
-            var lineBottom = new l3(
-                bottom[i].m(this.width).a(this.point),
-                bottom[(i+1)%top.length].m(this.width).a(this.point)
+            var lineBottom= new l3(
+                middle[i].m(this.width).a(this.point),
+                top[1].m(this.width).a(this.point)
             );
-            var lineBetween = new l3(
-                top[i].m(this.width).a(this.point),
-                bottom[i].m(this.width).a(this.point)
-            );
+            lineMiddle.draw();
             lineTop.draw();
             lineBottom.draw();
-            lineBetween.draw();
         }
     }
     
-    function trademark(value, length) {
-        this.value = value;
-        this.length = length;
-        this.elem = document.createElement("span");
-        pp.appendChild(this.elem);
-        this.elem.innerHTML = value;
-    }
-    trademark.prototype.draw = function() {
-        p.innerHTML = p.innerHTML.slice(0,-this.length);
-    }
-    
-    var movingSquare = new sq(
-        new v3(0,20,150),
-        60
+    var movingDiamond = new sq(
+        new v3(0,20,70),
+        40
     );
-    scene.addChild(movingSquare);
+    scene.addChild(movingDiamond);
     
-    var jehna = new trademark("<a href='http://twitter.com/luotojesse' target='_blank'>twitter.com/luotojesse</a>", 22);
     
     setInterval(function() {
         clear();
-        //movingSquare.point.x = Math.sin(new Date().getTime()/1000)*cols;
-        //movingSquare.point.y = Math.sin(new Date().getTime()/3000)*rows;
-        //movingSquare.point.z = Math.sin(new Date().getTime()/2000)*70 + 80;
+        //movingDiamond.point.x = Math.sin(new Date().getTime()/1000)*cols;
+        //movingDiamond.point.y = Math.sin(new Date().getTime()/3000)*rows;
+        //movingDiamond.point.z = Math.sin(new Date().getTime()/2000)*70 + 80;
         scene.draw();
         render();
-        jehna.draw();
     },1000/30);
     
 };
