@@ -1,8 +1,6 @@
 # ASCII Diamond
 > A simple ASCII-rendered rotating diamond
 
-based on https://github.com/jehna/AsciiCube
-
 ## Additional info
 
 Here are a few details:
