@@ -15,7 +15,7 @@
         he = d.head,
         pp = d.createElement("pre"),
         p = d.createElement("span"),
-        cols = w.innerWidth/fw|0,
+        cols = w.innerWidth/fw+2|0,
         rows = w.innerHeight/fh|0,
         a = [],
         ctx;
@@ -48,7 +48,7 @@
         y = y/fh*fw; // Normalize to font
         
         x = x|0;
-        y = y|0;
+        y = (y+20)|0;
         if (x>=cols||y>=rows||y<0||x<0) return;
         a[y%rows][x%cols] = v;
         
@@ -188,7 +188,7 @@
     }
     
     function ProjectV3toV2(v3p) {
-        var focalLength = 60;
+        var focalLength = 90;
         var scale = focalLength/(v3p.z+focalLength);
         
         return new v2(v3p.x*scale, v3p.y*scale);
@@ -257,7 +257,7 @@
     }
     
     var movingDiamond = new sq(
-        new v3(0,20,70),
+        new v3(0,-20,50),
         40
     );
     scene.addChild(movingDiamond);
