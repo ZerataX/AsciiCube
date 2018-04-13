@@ -31,6 +31,7 @@
     b.appendChild(pp);
     pp.appendChild(p);
     b.style.margin = 0;
+    b.style.overflow = "hidden";
     
     for(var y = 0; y < rows; y++) {
         a[y] = [];
@@ -257,8 +258,10 @@
     }
     
     var movingDiamond = new sq(
-        new v3(0,-20,50),
-        40
+        new v3(0,
+               window.innerHeight*0.031456953642384-39,
+               0),
+        (rows-3)/2
     );
     scene.addChild(movingDiamond);
     
@@ -274,3 +277,4 @@
     
 };
 </script>
+
